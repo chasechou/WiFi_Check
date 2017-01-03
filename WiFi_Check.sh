@@ -33,14 +33,15 @@
 ##################################################################
 # Settings
 # Where and what you want to call the Lockfile
-lockfile='/var/run/WiFi_Check.pid'
+lockfile='/home/pi/projects/WiFi_Check/WiFi_Check.pid'
 # Which Interface do you want to check/fix
 wlan='wlan0'
+# Which address do you want to ping to see if you can connect
+pingip='192.168.1.1'
 ##################################################################
 echo
 echo "Starting WiFi check for $wlan"
 date
-echo 
 
 # Check to see if there is a lock file
 if [ -e $lockfile ]; then
@@ -61,20 +62,22 @@ fi
 echo $$ > $lockfile
 
 # We can perform check
-echo "Performing Network check for $wlan"
-if ifconfig $wlan | grep -q "inet addr:" ; then
-    echo "Network is Okay"
-else
+/bin/ping -c 2 -I $wlan $pingip > /dev/null 2> /dev/null
+
+if [ $? -ge 1 ] ; then
     echo "Network connection down! Attempting reconnection."
     ifdown $wlan
     sleep 5
     ifup --force $wlan
     ifconfig $wlan | grep "inet addr"
+else
+    echo "Network is Okay"
 fi
 
-echo 
-echo "Current Setting:"
+ping 192.168.1.1 -c1
 ifconfig $wlan | grep "inet addr:"
+iwconfig $wlan | grep "Freq"
+iwlist $wlan channel |grep "Freq"
 echo
  
 # Check is complete, Remove Lock file and exit
