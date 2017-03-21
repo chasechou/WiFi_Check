@@ -37,7 +37,7 @@ lockfile='/home/pi/projects/WiFi_Check/WiFi_Check.pid'
 # Which Interface do you want to check/fix
 wlan='wlan0'
 # Which address do you want to ping to see if you can connect
-pingip='192.168.1.1'
+pingip='192.168.86.1'
 ##################################################################
 echo
 echo "Starting WiFi check for $wlan"
@@ -74,7 +74,7 @@ else
     echo "Network is Okay"
 fi
 
-ping 192.168.1.1 -c1
+ping $pingip -c1
 ifconfig $wlan | grep "inet addr:"
 iwconfig $wlan | grep "Freq"
 iwlist $wlan channel |grep "Freq"
